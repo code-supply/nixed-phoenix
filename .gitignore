@@ -35,3 +35,4 @@ my_new_project-*.tar
 npm-debug.log
 /assets/node_modules/
 
+.direnv
