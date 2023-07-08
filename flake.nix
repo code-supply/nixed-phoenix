@@ -56,5 +56,12 @@
       default = webApp;
       inherit dockerImage;
     };
+    devShells.${system}.default = with pkgs;
+      mkShell {
+        packages = [
+          elixir
+          elixir_ls
+        ];
+      };
   };
 }
