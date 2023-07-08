@@ -30,7 +30,31 @@
       inherit version;
       inherit mixFodDeps;
     };
+
+    dockerImage =
+      pkgs.dockerTools.buildImage
+      {
+        name = "mygreatdocker/image";
+        tag = version;
+        config = {
+          Cmd = ["${webApp}/bin/${pname}" "start"];
+          Env = ["PATH=/bin:$PATH" "LC_ALL=C.UTF-8"];
+        };
+        copyToRoot = pkgs.buildEnv {
+          name = "image-root";
+          paths = with pkgs; [
+            bash
+            coreutils
+            gnugrep
+            gnused
+          ];
+          pathsToLink = ["/bin"];
+        };
+      };
   in {
-    packages.x86_64-linux.default = webApp;
+    packages.x86_64-linux = {
+      default = webApp;
+      inherit dockerImage;
+    };
   };
 }
