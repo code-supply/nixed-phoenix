@@ -29,6 +29,10 @@
       inherit pname;
       inherit version;
       inherit mixFodDeps;
+
+      postBuild = ''
+        mix phx.digest --no-deps-check
+      '';
     };
 
     dockerImage =
