@@ -18,6 +18,16 @@
     fetchMixDeps = beamPkgs.fetchMixDeps.override {inherit elixir;};
     mixRelease = beamPkgs.mixRelease.override {inherit elixir erlang fetchMixDeps;};
 
+    tailwindBinary = pkgs.fetchurl {
+      url = "https://github.com/tailwindlabs/tailwindcss/releases/download/v3.2.7/tailwindcss-linux-x64";
+      sha256 = "sha256-NeT6JTr03atzSQt0Q7fQjwxmSo2LO4eOrcu1Sn4GR/g=";
+    };
+
+    esbuildBinary = pkgs.fetchzip {
+      url = "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.17.11.tgz";
+      sha256 = "sha256-AUHohCkJqS/WdnT8TZ+h+/JFUs/s1hnYExz9Ebg5HB8=";
+    };
+
     mixFodDeps = fetchMixDeps {
       inherit version src;
       pname = "elixir-deps";
@@ -31,7 +41,10 @@
       inherit mixFodDeps;
 
       postBuild = ''
-        mix phx.digest --no-deps-check
+        install ${tailwindBinary} _build/tailwind-linux-x64
+        install ${esbuildBinary}/bin/esbuild _build/esbuild-linux-x64
+        cp -a /build/deps ./
+        mix assets.deploy
       '';
     };
 
