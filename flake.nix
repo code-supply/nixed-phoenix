@@ -9,7 +9,18 @@
   }: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
-    beamPkgs = pkgs.beam_minimal.packages.erlang_25;
+    beamPkgs = with pkgs.beam_minimal;
+      packagesWith (interpreters.erlangR25.override {
+        configureFlags = [
+          "--without-debugger"
+          "--without-et"
+          "--without-megaco"
+          "--without-observer"
+          "--without-termcap"
+          "--without-wx"
+        ];
+        installTargets = ["install"];
+      });
     pname = "my_new_project";
     version = "0.0.1";
     src = ./.;
@@ -35,10 +46,7 @@
     };
 
     webApp = mixRelease {
-      inherit src;
-      inherit pname;
-      inherit version;
-      inherit mixFodDeps;
+      inherit src pname version mixFodDeps;
 
       postBuild = ''
         install ${tailwindBinary} _build/tailwind-linux-x64
@@ -77,7 +85,8 @@
       mkShell {
         packages = [
           elixir
-          elixir_ls
+          erlang
+          (elixir_ls.override {inherit elixir;})
         ];
       };
   };
