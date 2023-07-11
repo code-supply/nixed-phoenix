@@ -67,12 +67,7 @@
         };
         copyToRoot = pkgs.buildEnv {
           name = "image-root";
-          paths = with pkgs; [
-            bash
-            coreutils
-            gnugrep
-            gnused
-          ];
+          paths = [pkgs.busybox];
           pathsToLink = ["/bin"];
         };
       };
