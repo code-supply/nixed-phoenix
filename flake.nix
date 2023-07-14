@@ -52,7 +52,7 @@
           postBuild = ''
             install ${pkgs.tailwindcss}/bin/tailwindcss _build/tailwind-${systemAbbrs.${system}}
             install ${pkgs.esbuild}/bin/esbuild _build/esbuild-${systemAbbrs.${system}}
-            cp -a /build/deps ./
+            cp -a ../deps ./
             mix assets.deploy
           '';
         };
