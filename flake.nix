@@ -55,9 +55,6 @@
         packages = {
           default = webApp;
           inherit dockerImage;
-          lib = {
-            inherit buildPhoenixApp;
-          };
         };
         devShells.default = with pkgs;
           mkShell {
