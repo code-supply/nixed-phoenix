@@ -2,12 +2,14 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/master";
     flake-utils.url = "github:numtide/flake-utils";
+    phoenix-utils.url = "/home/andrew/workspace/phoenix-utils";
   };
 
   outputs = {
     self,
     nixpkgs,
     flake-utils,
+    phoenix-utils,
   }:
     with flake-utils.lib; let
       systemAbbrs = {
@@ -20,43 +22,15 @@
         system.x86_64-linux
       ] (system: let
         pkgs = nixpkgs.legacyPackages.${system};
-        beamPkgs = with pkgs.beam_minimal;
-          packagesWith (interpreters.erlangR25.override {
-            configureFlags = [
-              "--without-debugger"
-              "--without-et"
-              "--without-megaco"
-              "--without-observer"
-              "--without-termcap"
-              "--without-wx"
-            ];
-            installTargets = ["install"];
-          });
         pname = "my_new_project";
         version = "0.0.1";
         src = ./.;
-        elixir = beamPkgs.elixir_1_14;
-        erlang = beamPkgs.erlang;
-        fetchMixDeps = beamPkgs.fetchMixDeps.override {inherit elixir;};
-        mixRelease = beamPkgs.mixRelease.override {inherit elixir erlang fetchMixDeps;};
-
-        mixFodDeps = fetchMixDeps {
-          inherit version src;
-          pname = "elixir-deps";
-          sha256 = "sha256-dKMSPLv18xyAPdjCkN/iVQCZ8h1RYKSdjuIILMj+hzY=";
+        webApp = phoenix-utils.lib.buildPhoenixApp {
+          inherit pkgs pname src version;
+          mixDepsSha256 = "sha256-dKMSPLv18xyAPdjCkN/iVQCZ8h1RYKSdjuIILMj+hzY=";
+          tailwindPath = "_build/tailwind-${systemAbbrs.${system}}";
+          esbuildPath = "_build/esbuild-${systemAbbrs.${system}}";
         };
-
-        webApp = mixRelease {
-          inherit src pname version mixFodDeps;
-
-          postBuild = ''
-            install ${pkgs.tailwindcss}/bin/tailwindcss _build/tailwind-${systemAbbrs.${system}}
-            install ${pkgs.esbuild}/bin/esbuild _build/esbuild-${systemAbbrs.${system}}
-            cp -a ../deps ./
-            mix assets.deploy
-          '';
-        };
-
         dockerImage =
           pkgs.dockerTools.buildImage
           {
@@ -81,6 +55,9 @@
         packages = {
           default = webApp;
           inherit dockerImage;
+          lib = {
+            inherit buildPhoenixApp;
+          };
         };
         devShells.default = with pkgs;
           mkShell {
