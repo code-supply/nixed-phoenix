@@ -34,10 +34,32 @@
         "type": "github"
       }
     },
-    "phoenix-utils": {
+    "nixpkgs_2": {
       "locked": {
-        "lastModified": 1689489798,
-        "narHash": "sha256-XAjcWDsCSRpmLekzXFsDq9oU+X5fcGSHZajkqKZOTr4=",
+        "lastModified": 1689482157,
+        "narHash": "sha256-7DmkMNaWoHqIUT6O1HCUyVJSvhhRT5kIClKKSE9hiMU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "a35621603c2d8417ca3f371f0e3bcc66a58f2aad",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "master",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "phoenix-utils": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1689519425,
+        "narHash": "sha256-RlVfPS2jVkjaSdAnAP5v7sJuY4POV9DYGojr0RTgz54=",
+        "ref": "refs/heads/main",
+        "rev": "f6a22dcc82f91e35c78b6dc5cd2ca49c6f1698f9",
+        "revCount": 7,
         "type": "git",
         "url": "file:///home/andrew/workspace/phoenix-utils"
       },

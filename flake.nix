@@ -37,7 +37,7 @@
             name = "mygreatdocker/image";
             tag = version;
             config = {
-              Cmd = ["${webApp}/bin/${pname}" "start"];
+              Cmd = ["${webApp.app}/bin/${pname}" "start"];
               Env = ["PATH=/bin:$PATH" "LC_ALL=C.UTF-8"];
             };
             copyToRoot = pkgs.buildEnv {
@@ -53,17 +53,15 @@
           };
       in {
         packages = {
-          default = webApp;
+          default = webApp.app;
           inherit dockerImage;
         };
         devShells.default = with pkgs;
           mkShell {
             packages = [
-              elixir
-              (elixir_ls.override {inherit elixir;})
-              erlang
-              esbuild
-              tailwindcss
+              webApp.elixir
+              (elixir_ls.override {elixir = webApp.elixir;})
+              webApp.erlang
             ];
           };
       });
