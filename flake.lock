@@ -57,15 +57,15 @@
       "locked": {
         "lastModified": 1689519425,
         "narHash": "sha256-RlVfPS2jVkjaSdAnAP5v7sJuY4POV9DYGojr0RTgz54=",
-        "ref": "refs/heads/main",
+        "owner": "code-supply",
+        "repo": "phoenix-utils",
         "rev": "f6a22dcc82f91e35c78b6dc5cd2ca49c6f1698f9",
-        "revCount": 7,
-        "type": "git",
-        "url": "file:///home/andrew/workspace/phoenix-utils"
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:///home/andrew/workspace/phoenix-utils"
+        "owner": "code-supply",
+        "repo": "phoenix-utils",
+        "type": "github"
       }
     },
     "root": {

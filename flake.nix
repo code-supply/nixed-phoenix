@@ -2,7 +2,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/master";
     flake-utils.url = "github:numtide/flake-utils";
-    phoenix-utils.url = "/home/andrew/workspace/phoenix-utils";
+    phoenix-utils.url = "github:code-supply/phoenix-utils";
   };
 
   outputs = {
