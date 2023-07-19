@@ -13,6 +13,6 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Test
-        run: nix develop --command -- mix test
+        run: nix develop --command -- bash -c "mix local.hex --force; mix test"
       - name: Build Release
         run: nix build .
