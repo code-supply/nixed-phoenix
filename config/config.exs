@@ -7,6 +7,9 @@
 # General application configuration
 import Config
 
+config :my_new_project,
+  ecto_repos: [MyNewProject.Repo]
+
 # Configures the endpoint
 config :my_new_project, MyNewProjectWeb.Endpoint,
   url: [host: "localhost"],

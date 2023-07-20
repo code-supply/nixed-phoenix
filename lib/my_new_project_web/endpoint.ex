@@ -7,7 +7,7 @@ defmodule MyNewProjectWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_my_new_project_key",
-    signing_salt: "7uYw+dXW",
+    signing_salt: "Ztcz+qej",
     same_site: "Lax"
   ]
 
@@ -29,6 +29,7 @@ defmodule MyNewProjectWeb.Endpoint do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
     plug Phoenix.LiveReloader
     plug Phoenix.CodeReloader
+    plug Phoenix.Ecto.CheckRepoStatus, otp_app: :my_new_project
   end
 
   plug Phoenix.LiveDashboard.RequestLogger,
