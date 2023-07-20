@@ -51,6 +51,25 @@
               pathsToLink = ["/bin"];
             };
           };
+        postgresStart = with pkgs;
+          writeShellScriptBin "postgres-start" ''
+            [[ -d "$PGHOST" ]] || \
+              ${postgresql_15}/bin/initdb -D "$PGHOST/db"
+            ${postgresql_15}/bin/pg_ctl \
+              -D "$PGHOST/db" \
+              -l "$PGHOST/log" \
+              -o "--unix_socket_directories='$PGHOST'" \
+              -o "--listen_addresses=" \
+              start
+          '';
+        postgresStop = with pkgs;
+          writeShellScriptBin "postgres-stop" ''
+            pg_ctl \
+              -D "$PGHOST/db" \
+              -l "$PGHOST/log" \
+              -o "--unix_socket_directories=$PGHOST" \
+              stop
+          '';
       in {
         packages = {
           default = webApp.app;
@@ -59,10 +78,17 @@
         devShells.default = with pkgs;
           mkShell {
             packages = [
-              webApp.elixir
               (elixir_ls.override {elixir = webApp.elixir;})
+              inotify-tools
+              postgresql_15
+              postgresStart
+              postgresStop
+              webApp.elixir
               webApp.erlang
             ];
+            shellHook = ''
+              export PGHOST="$(git rev-parse --show-toplevel)/.postgres"
+            '';
           };
       });
 }
