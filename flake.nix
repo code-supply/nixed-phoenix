@@ -70,6 +70,9 @@
               -o "--unix_socket_directories=$PGHOST" \
               stop
           '';
+        shellHook = ''
+          export PGHOST="$(git rev-parse --show-toplevel)/.postgres"
+        '';
       in {
         packages = {
           default = webApp.app;
@@ -77,6 +80,7 @@
         };
         devShells.default = with pkgs;
           mkShell {
+            inherit shellHook;
             packages = [
               (elixir_ls.override {elixir = webApp.elixir;})
               inotify-tools
@@ -86,9 +90,15 @@
               webApp.elixir
               webApp.erlang
             ];
-            shellHook = ''
-              export PGHOST="$(git rev-parse --show-toplevel)/.postgres"
-            '';
+          };
+        devShells.ci = with pkgs;
+          mkShell {
+            inherit shellHook;
+            packages = [
+              postgresql_15
+              postgresStart
+              webApp.elixir
+            ];
           };
       });
 }
