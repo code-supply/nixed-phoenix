@@ -27,7 +27,7 @@
         src = ./.;
         webApp = phoenix-utils.lib.buildPhoenixApp {
           inherit pkgs pname src version;
-          mixDepsSha256 = "sha256-dKMSPLv18xyAPdjCkN/iVQCZ8h1RYKSdjuIILMj+hzY=";
+          mixDepsSha256 = "sha256-WbhOZ7LkyVjIxO+6jOGQmzHZGDwNgrHpnKQbNQ9uGKM=";
           tailwindPath = "_build/tailwind-${systemAbbrs.${system}}";
           esbuildPath = "_build/esbuild-${systemAbbrs.${system}}";
         };
