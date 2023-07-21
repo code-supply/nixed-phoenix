@@ -55,11 +55,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1689519425,
-        "narHash": "sha256-RlVfPS2jVkjaSdAnAP5v7sJuY4POV9DYGojr0RTgz54=",
+        "lastModified": 1689980543,
+        "narHash": "sha256-dm7dty7Q3r1GgRL5G5tDF1nNkxuou4uBfAvshzN6v5I=",
         "owner": "code-supply",
         "repo": "phoenix-utils",
-        "rev": "f6a22dcc82f91e35c78b6dc5cd2ca49c6f1698f9",
+        "rev": "6779c9af954efe75d91e6633320c766b96523a67",
         "type": "github"
       },
       "original": {

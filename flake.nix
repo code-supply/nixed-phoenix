@@ -11,12 +11,7 @@
     flake-utils,
     phoenix-utils,
   }:
-    with flake-utils.lib; let
-      systemAbbrs = {
-        ${system.aarch64-darwin} = "macos-arm64";
-        ${system.x86_64-linux} = "linux-x64";
-      };
-    in
+    with flake-utils.lib;
       eachSystem [
         system.aarch64-darwin
         system.x86_64-linux
@@ -26,10 +21,9 @@
         version = "0.0.1";
         src = ./.;
         webApp = phoenix-utils.lib.buildPhoenixApp {
-          inherit pkgs pname src version;
-          mixDepsSha256 = "sha256-WbhOZ7LkyVjIxO+6jOGQmzHZGDwNgrHpnKQbNQ9uGKM=";
-          tailwindPath = "_build/tailwind-${systemAbbrs.${system}}";
-          esbuildPath = "_build/esbuild-${systemAbbrs.${system}}";
+          inherit pkgs pname src version system;
+          mix2NixOutput = import ./deps.nix;
+          # mixDepsSha256 = "sha256-WbhOZ7LkyVjIxO+6jOGQmzHZGDwNgrHpnKQbNQ9uGKM=";
         };
         dockerImage =
           pkgs.dockerTools.buildImage
@@ -84,6 +78,7 @@
             packages = [
               (elixir_ls.override {elixir = webApp.elixir;})
               inotify-tools
+              mix2nix
               postgresql_15
               postgresStart
               postgresStop
