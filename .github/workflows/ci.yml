@@ -16,5 +16,14 @@ jobs:
         run: nix develop .#ci --command -- bash -c "postgres-start; createuser -d postgres"
       - name: Test
         run: nix develop .#ci --command -- bash -c "mix do local.hex --force + local.rebar --force + deps.get; mix test"
-      - name: Containerise
+        env:
+          PGHOST: localhost
+  containerise:
+    name: Containerise
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Build container
         run: nix build .#dockerImage
