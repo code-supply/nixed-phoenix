@@ -16,5 +16,5 @@ jobs:
         run: nix develop --command -- bash -c "postgres-start; createuser -d postgres"
       - name: Test
         run: nix develop --command -- bash -c "mix do local.hex --force + local.rebar --force + deps.get; mix test"
-      - name: Build Release
-        run: nix build .
+      - name: Containerise
+        run: nix build .#dockerImage
