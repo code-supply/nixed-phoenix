@@ -93,10 +93,7 @@
           };
         devShells.ci = with pkgs;
           mkShell {
-            inherit shellHook;
             packages = [
-              postgresql_15
-              postgresStart
               webApp.elixir
             ];
           };
