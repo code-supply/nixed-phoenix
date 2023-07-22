@@ -17,9 +17,10 @@ jobs:
       - name: Cache mix dependencies fetched for test
         uses: actions/cache@v3
         with:
-          key: hex-dir
+          key: mix-and-hex
           path: |
             ~/.hex
+            ~/.mix
       - name: Test
         run: nix develop .#ci --command -- bash -c "mix do local.hex --force + local.rebar --force + deps.get; mix test"
         env:
