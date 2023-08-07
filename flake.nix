@@ -1,23 +1,51 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/master";
-    phoenix-utils.url = "github:code-supply/phoenix-utils";
   };
 
   outputs = {
     self,
     nixpkgs,
-    phoenix-utils,
   }: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
     pname = "my_new_project";
     version = "0.0.1";
     src = ./.;
-    webApp = phoenix-utils.lib.buildPhoenixApp {
-      inherit pkgs pname src version system;
-      mix2NixOutput = import ./deps.nix;
-      # mixDepsSha256 = "sha256-WbhOZ7LkyVjIxO+6jOGQmzHZGDwNgrHpnKQbNQ9uGKM=";
+    beamPackages = with pkgs.beam_minimal; packagesWith interpreters.erlangR25;
+    erlang = beamPackages.erlang;
+    elixir = beamPackages.elixir_1_14;
+    fetchMixDeps = beamPackages.fetchMixDeps.override {inherit elixir;};
+    mixRelease = beamPackages.mixRelease.override {inherit elixir erlang fetchMixDeps;};
+    webApp = mixRelease {
+      inherit pname src version system;
+      mixNixDeps = (import ./deps.nix) {
+        inherit beamPackages;
+        lib = pkgs.lib;
+        overrides = let
+          overrideFun = old: {
+            postInstall = ''
+              cp -v package.json "$out/lib/erlang/lib/${old.name}"
+            '';
+          };
+        in
+          _: prev: {
+            phoenix = prev.phoenix.overrideAttrs overrideFun;
+            phoenix_html = prev.phoenix_html.overrideAttrs overrideFun;
+            phoenix_live_view = prev.phoenix_live_view.overrideAttrs overrideFun;
+          };
+      };
+      preBuild = ''
+        mkdir ./deps
+        cp -a _build/prod/lib/. ./deps/
+      '';
+
+      postBuild = ''
+        ln -sfv ${pkgs.tailwindcss}/bin/tailwindcss _build/tailwind-linux-x64
+        ln -sfv ${pkgs.esbuild}/bin/esbuild _build/esbuild-linux-x64
+
+        mix assets.deploy --no-deps-check
+      '';
     };
     dockerImage =
       pkgs.dockerTools.buildImage
@@ -25,7 +53,7 @@
         name = "mygreatdocker/image";
         tag = version;
         config = {
-          Cmd = ["${webApp.app}/bin/${pname}" "start"];
+          Cmd = ["${webApp}/bin/${pname}" "start"];
           Env = ["PATH=/bin:$PATH" "LC_ALL=C.UTF-8"];
         };
         copyToRoot = pkgs.buildEnv {
@@ -64,7 +92,7 @@
   in {
     packages = {
       ${system} = {
-        default = webApp.app;
+        default = webApp;
         inherit dockerImage;
       };
     };
@@ -73,14 +101,14 @@
         mkShell {
           inherit shellHook;
           packages = [
-            (elixir_ls.override {elixir = webApp.elixir;})
+            (elixir_ls.override {inherit elixir;})
             inotify-tools
             mix2nix
             postgresql_15
             postgresStart
             postgresStop
-            webApp.elixir
-            webApp.erlang
+            elixir
+            erlang
           ];
         };
       ci = with pkgs;
@@ -89,7 +117,7 @@
           packages = [
             postgresql_15
             postgresStart
-            webApp.elixir
+            elixir
           ];
         };
     };
