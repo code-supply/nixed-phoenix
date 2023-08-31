@@ -19,6 +19,9 @@
     mixRelease = beamPackages.mixRelease.override {inherit elixir erlang fetchMixDeps;};
     webApp = mixRelease {
       inherit pname src version system;
+
+      stripDebug = true;
+
       mixNixDeps = (import ./deps.nix) {
         inherit beamPackages;
         lib = pkgs.lib;
@@ -35,6 +38,7 @@
             phoenix_live_view = prev.phoenix_live_view.overrideAttrs overrideFun;
           };
       };
+
       preBuild = ''
         mkdir ./deps
         cp -a _build/prod/lib/. ./deps/
