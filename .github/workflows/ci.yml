@@ -37,3 +37,5 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Build container
         run: nix build .#dockerImage
+      - name: Load it up
+        run: docker load < result
