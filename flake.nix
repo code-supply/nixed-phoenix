@@ -10,7 +10,7 @@
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
     pname = "my_new_project";
-    version = "0.0.1";
+    version = self.rev;
     src = ./.;
     beamPackages = with pkgs.beam_minimal; packagesWith interpreters.erlangR25;
     erlang = beamPackages.erlang;
