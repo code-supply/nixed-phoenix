@@ -15,7 +15,28 @@ jobs:
       - name: Start database
         run: nix develop .#ci --command -- bash -c "postgres-start; createuser -d postgres"
       - name: Test
-        run: nix develop .#ci --command -- bash -c "mix do deps.loadpaths --no-deps-check, test"
+        run:
+          - nix
+          - develop
+          - .#ci 
+          - --command
+          - -- 
+          - bash
+          - -ec
+          - |-
+            mkdir deps
+            mkdir -p _build/test/lib
+            while read -r -d ':' lib
+            do
+              for dir in "$lib/"/*
+              do
+                dest="$(basename "$dir" | cut -d '-' -f1)"
+                build_dir="_build/test/lib/$dest"
+                ln -sfv "$dir" "$build_dir"
+                ln -sfv "$dir" "deps/$dest"
+              done
+            done <<< "$ERL_LIBS:"
+            mix do deps.loadpaths --no-deps-check, test
         env:
           PGHOST: localhost
   containerise:
