@@ -8,6 +8,8 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-22.04
+    env:
+      PGHOST: localhost
     steps:
       - uses: actions/checkout@v3
       - uses: DeterminateSystems/nix-installer-action@main
@@ -15,25 +17,7 @@ jobs:
       - name: Start database
         run: nix develop .#ci --command -- bash -c "postgres-start; createuser -d postgres"
       - name: Test
-        run: |-
-          nix develop .#ci --command -- bash -ec "$(cat <<EOF
-            mkdir deps
-            mkdir -p _build/test/lib
-            while read -r -d ':' lib
-            do
-              for dir in "$lib/"/*
-              do
-                dest="$(basename "$dir" | cut -d '-' -f1)"
-                build_dir="_build/test/lib/$dest"
-                ln -sfv "$dir" "$build_dir"
-                ln -sfv "$dir" "deps/$dest"
-              done
-            done <<< "$ERL_LIBS:"
-            mix do deps.loadpaths --no-deps-check, test
-          EOF
-          )"
-        env:
-          PGHOST: localhost
+        run: nix develop .#ci --command -- ci-run-tests
   containerise:
     name: Containerise
     runs-on: ubuntu-22.04

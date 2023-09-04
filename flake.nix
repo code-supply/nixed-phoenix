@@ -18,28 +18,28 @@
       elixir = beamPackages.elixir_1_14;
       fetchMixDeps = beamPackages.fetchMixDeps.override { inherit elixir; };
       mixRelease = beamPackages.mixRelease.override { inherit elixir erlang fetchMixDeps; };
+      mixNixDeps = (import ./deps.nix) {
+        inherit beamPackages;
+        lib = pkgs.lib;
+        overrides =
+          let
+            overrideFun = old: {
+              postInstall = ''
+                cp -v package.json "$out/lib/erlang/lib/${old.name}"
+              '';
+            };
+          in
+          _: prev: {
+            phoenix = prev.phoenix.overrideAttrs overrideFun;
+            phoenix_html = prev.phoenix_html.overrideAttrs overrideFun;
+            phoenix_live_view = prev.phoenix_live_view.overrideAttrs overrideFun;
+          };
+      };
+
       webApp = mixRelease {
-        inherit pname src version system;
+        inherit pname src version system mixNixDeps;
 
         stripDebug = true;
-
-        mixNixDeps = (import ./deps.nix) {
-          inherit beamPackages;
-          lib = pkgs.lib;
-          overrides =
-            let
-              overrideFun = old: {
-                postInstall = ''
-                  cp -v package.json "$out/lib/erlang/lib/${old.name}"
-                '';
-              };
-            in
-            _: prev: {
-              phoenix = prev.phoenix.overrideAttrs overrideFun;
-              phoenix_html = prev.phoenix_html.overrideAttrs overrideFun;
-              phoenix_live_view = prev.phoenix_live_view.overrideAttrs overrideFun;
-            };
-        };
 
         preBuild = ''
           mkdir ./deps
@@ -87,6 +87,22 @@
             -o "--unix_socket_directories=$PGHOST" \
             stop
         '';
+      ciRunTests = with pkgs;
+        writeShellScriptBin "ci-run-tests" ''
+          mkdir deps
+          mkdir -p _build/test/lib
+          while read -r -d ':' lib
+          do
+            for dir in "$lib/"/*
+            do
+              dest="$(basename "$dir" | cut -d '-' -f1)"
+              build_dir="_build/test/lib/$dest"
+              ln -sfv "$dir" "$build_dir"
+              ln -sfv "$dir" "deps/$dest"
+            done
+          done <<< "$ERL_LIBS:"
+          MIX_ENV=test mix do deps.loadpaths --no-deps-check, test
+        '';
       shellHook = ''
         export PGHOST="$(git rev-parse --show-toplevel)/.postgres"
       '';
@@ -122,10 +138,11 @@
             inherit shellHook;
             packages = [
               beamPackages.hex
+              ciRunTests
               elixir
               postgresql_15
               postgresStart
-            ];
+            ] ++ builtins.attrValues mixNixDeps;
           };
       };
     };
