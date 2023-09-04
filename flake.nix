@@ -126,9 +126,10 @@
           mkShell {
             inherit shellHook;
             packages = [
+              beamPackages.hex
+              elixir
               postgresql_15
               postgresStart
-              elixir
             ];
           };
       };
