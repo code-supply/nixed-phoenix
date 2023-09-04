@@ -14,18 +14,8 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Start database
         run: nix develop .#ci --command -- bash -c "postgres-start; createuser -d postgres"
-      - name: Cache mix dependencies fetched for test
-        uses: actions/cache@v3
-        with:
-          key: phoenix
-          path: |
-            ~/.hex
-            ~/.mix
-            deps
-            _build
-            priv/plts
       - name: Test
-        run: nix develop .#ci --command -- bash -c "mix do local.hex --force + local.rebar --force + deps.get; mix test"
+        run: nix develop .#ci --command -- bash -c "mix do deps.loadpaths --no-deps-check, test"
         env:
           PGHOST: localhost
   containerise:
