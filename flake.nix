@@ -59,17 +59,12 @@
             name = "mygreatdocker/image";
             tag = version;
             config = {
-              Cmd = [ "${webApp}/bin/${pname}" "start" ];
-              Env = [ "PATH=/bin:$PATH" "LC_ALL=C.UTF-8" ];
+              Cmd = [ "${webApp}/bin/server" ];
+              Env = [ "LC_ALL=C.UTF-8" ];
             };
             copyToRoot = pkgs.buildEnv {
               name = "image-root";
-              paths = with pkgs; [
-                bash
-                coreutils
-                gnugrep
-                gnused
-              ];
+              paths = [ pkgs.busybox ];
               pathsToLink = [ "/bin" ];
             };
           };
