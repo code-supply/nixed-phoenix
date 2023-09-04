@@ -15,15 +15,8 @@ jobs:
       - name: Start database
         run: nix develop .#ci --command -- bash -c "postgres-start; createuser -d postgres"
       - name: Test
-        run:
-          - nix
-          - develop
-          - .#ci 
-          - --command
-          - -- 
-          - bash
-          - -ec
-          - |-
+        run: |-
+          nix develop .#ci --command -- bash -ec "$(cat <<EOF
             mkdir deps
             mkdir -p _build/test/lib
             while read -r -d ':' lib
@@ -37,6 +30,8 @@ jobs:
               done
             done <<< "$ERL_LIBS:"
             mix do deps.loadpaths --no-deps-check, test
+          EOF
+          )"
         env:
           PGHOST: localhost
   containerise:
